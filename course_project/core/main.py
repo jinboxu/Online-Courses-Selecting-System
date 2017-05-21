@@ -47,38 +47,41 @@ class School_manager(object):
             with open(database_dir_path + "pickle_shanghai", "wb") as f:
                 pickle.dump(self.school_shanghai, f)
             self.run()
+
     def run(self):
         while True:
-            def operate():
-                while True:
-                    print("\033[1;31;47m欢迎来到管理员视图"
-                          "添加课程:\tcreate_course\n"
-                          "创建讲师:\tcreate_teacher\n"
-                          "增加班级:\tcreate_class\n"
-                          "查看校区信息:\tshow_info\n"
-                          "保存，退出程序:\texit\033[0m\n")
-                    choice = input(">>: ").strip()
-                    if hasattr(self, choice):
-                        getattr(self, choice)()
-                    elif choice == "exit":
-                        pass
-                    else:
-                        print("无此方法，请重新输入")
-                        continue
-
             choice_school = input("\033[34;0m输入选择管理的学校名:\033[0m(北京\上海)")
             if choice_school == "北京":
                 self.school_obj = self.school_beijing
-                operate()
+                self.operate()
                 with open(database_dir_path + "pickle_beijing", "wb") as f:
                     pickle.dump(self.school_obj, f)
             elif choice_school == "上海":
                 self.school_obj = self.school_shanghai
-                operate()
+                self.operate()
                 with open(database_dir_path + "pickle_shanghai", "wb") as f:
                     pickle.dump(self.school_obj, f)
             else:
                 print("输出错误，请重新输入")
+
+    def operate(self):
+        while True:
+            print("\033[1;31;47m欢迎来到管理员视图"
+                  "添加课程:\tcreate_course\n"
+                  "创建讲师:\tcreate_teacher\n"
+                  "增加班级:\tcreate_class\n"
+                  "查看校区信息:\tshow_info\n"
+                  "保存，退出程序:\texit\033[0m\n")
+            choice = input(">>: ").strip()
+            if hasattr(self, choice):
+                getattr(self, choice)()
+            elif choice == "exit":
+                break
+            else:
+                print("无此方法，请重新输入")
+                continue
+        pass
+
     def add_course(self):
         course_name = input("\033[34;0m输入添加课程的名称：\033[0m").strip()
         course_price = input("\033[34;0m输入添加课程的价格：\033[0m").strip()
@@ -134,13 +137,103 @@ class School_manager(object):
             print("\033[32;1m班级：%s\t讲师：%s\033[0m" %(class_obj.name, class_obj.teacher_obj.name))
 
 class Student_manager(School_manager):
-    def __init__(self):
-        pass
-    def run(self):
+    # def run(self):
+    #     while True:
+    #         choice_school = input("\033[34;0m输入选择管理的学校名:\033[0m(北京\上海)")
+    #         if choice_school == "北京":
+    #             self.school_obj = self.school_beijing
+    #             self.operate()
+    #             with open(database_dir_path + "pickle_beijing", "wb") as f:
+    #                 pickle.dump(self.school_obj, f)
+    #         elif choice_school == "上海":
+    #             self.school_obj = self.school_shanghai
+    #             self.operate()
+    #             with open(database_dir_path + "pickle_shanghai", "wb") as f:
+    #                 pickle.dump(self.school_obj, f)
+    #         else:
+    #             print("输出错误，请重新输入")
+
+    def operate(self):
         while True:
-            student_name = input("输入学生名： ").strip()
-            if student_name in self.school_obj:
-                pass         #....。。。。
+            choice1 = input("\033[1;31;47m登陆(login)或注册(eroll)\033[0m").strip()
+            if choice1 == "login" or choice1 == "eroll":
+                break
+        if hasattr(self, choice1):
+            getattr(self, choice1)()
+        choice2 = input("是否查看你当前的分数y/n,保存，退出程序:\texit\033[0m\n")
+        if choice2 == "y":
+            print("你的分数为%s" %self.school_obj.school_student[self.student_name].core)
+        elif choice2 == "exit":
+            pass
+
+    def login(self):
+        while True:
+            while True:
+                student_name = input("名称： ").strip()
+                if student_name:
+                    break
+            self.student_name = student_name
+            while True:
+                passwd = input("密码： ").strip()
+                if passwd:
+                    break
+            if student_name in self.school_obj.school_student and passwd == self.school_obj.school_student[student_name]:
+                print("欢迎你，%s" %student_name)
+            else:
+                print("用户名或密码错误，请重新登陆")
+                continue
+    def eroll(self):
+        while True:
+            while True:
+                student_name = input("名称： ").strip()
+                if student_name:
+                    break
+            self.student_name = student_name
+            while True:
+                passwd = input("密码： ").strip()
+                if passwd:
+                    break
+            while True:
+                sex = input("性别(男\女)： ").strip()
+                if sex == "男" or sex == "女":
+                    break
+                else:
+                    print("你输入的不和规范")
+            while True:
+                age = input("年龄： ").strip()
+                if age.isdigit():
+                    age = int(age)
+                    if age < 15:
+                        print("年龄不能这么小吧...")
+                        continue
+                    elif age > 30:
+                        print("一个学生，年龄不可能这么大吧...")
+                        continue
+                    else:
+                        break
+                else:
+                    print("你输入的不符合规范")
+            while True:
+                self.school_obj.show_class()
+                class_name = input("以上是各个班级和同学，选择哪个班级？").strip()
+                if class_name in self.school_obj.school_class:
+                    break
+                else:
+                    print("你输入的班级不存在，请重新选择")
+            class_obj = self.school_obj.school_class[class_name]
+            self.school_obj.eroll_student(student_name, passwd, sex, age, class_obj)
+
+    def show_core(self):
+        pass
+
+
+
+
+
+
+
+
+
 
 
 
