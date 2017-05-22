@@ -22,9 +22,9 @@ class School(object):
         for k in self.school_course:
             course_obj = self.school_course[k]
             print("\033[1;42;43m 课程：%s\t价格：%s\t周期：%s月\033[0m" %(course_obj.name, course_obj.price, course_obj.course_time))
-    def create_teacher(self, teacher_name, teacher_sex, teacher_age, teacher_salary):
+    def create_teacher(self, teacher_name, teacher_passwd, teacher_sex, teacher_age, teacher_salary):
         """创建老师"""
-        teacher_obj = Teacher(teacher_name, teacher_sex, teacher_age, teacher_salary)
+        teacher_obj = Teacher(teacher_name, teacher_passwd, teacher_sex, teacher_age, teacher_salary)
         self.school_teacher[teacher_name] = teacher_obj
     def update_teacher(self, teacher_name, class_obj):
         """更新老师信息"""

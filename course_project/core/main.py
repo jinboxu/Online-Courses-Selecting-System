@@ -56,11 +56,15 @@ class School_manager(object):
                 self.operate()
                 with open(database_dir_path + "pickle_beijing", "wb") as f:
                     pickle.dump(self.school_obj, f)
+                    print("数据已保存")
+                exit()
             elif choice_school == "上海":
                 self.school_obj = self.school_shanghai
                 self.operate()
                 with open(database_dir_path + "pickle_shanghai", "wb") as f:
                     pickle.dump(self.school_obj, f)
+                    print("数据已保存")
+                exit()
             else:
                 print("输出错误，请重新输入")
 
@@ -110,6 +114,7 @@ class School_manager(object):
             self.school_obj.create_teacher(teacher_name, teacher_sex, teacher_age, teacher_salary)
 
     def create_class(self):
+        """创建课程，关联一个老师，同时老师也关联了这个课程对象。注意：一个老师可以关联多个课程对象"""
         class_name = input("\033[34;0m输入创建班级的名称：\033[0m").strip()
         while True:
             class_course = input("\033[34;0m输入创建班级关联的课程：\033[0m").strip()
@@ -126,6 +131,8 @@ class School_manager(object):
             continue
         class_teacher_obj = self.school_obj.school_teacher[class_teacher]
         self.school_obj.create_class(class_name, class_course_obj, class_teacher_obj)
+        class_obj = self.school_obj.school_class[class_name]
+        self.school_obj.school_teacher.add_class(class_obj)    #同时关联这个课程对象
 
     def show_info(self):
         print("\033[32;1m学校名称：%s\033[0m" %self.school_obj.name)
@@ -137,22 +144,6 @@ class School_manager(object):
             print("\033[32;1m班级：%s\t讲师：%s\033[0m" %(class_obj.name, class_obj.teacher_obj.name))
 
 class Student_manager(School_manager):
-    # def run(self):
-    #     while True:
-    #         choice_school = input("\033[34;0m输入选择管理的学校名:\033[0m(北京\上海)")
-    #         if choice_school == "北京":
-    #             self.school_obj = self.school_beijing
-    #             self.operate()
-    #             with open(database_dir_path + "pickle_beijing", "wb") as f:
-    #                 pickle.dump(self.school_obj, f)
-    #         elif choice_school == "上海":
-    #             self.school_obj = self.school_shanghai
-    #             self.operate()
-    #             with open(database_dir_path + "pickle_shanghai", "wb") as f:
-    #                 pickle.dump(self.school_obj, f)
-    #         else:
-    #             print("输出错误，请重新输入")
-
     def operate(self):
         while True:
             choice1 = input("\033[1;31;47m登陆(login)或注册(eroll)\033[0m").strip()
@@ -179,52 +170,93 @@ class Student_manager(School_manager):
                     break
             if student_name in self.school_obj.school_student and passwd == self.school_obj.school_student[student_name]:
                 print("欢迎你，%s" %student_name)
+                break
             else:
                 print("用户名或密码错误，请重新登陆")
                 continue
     def eroll(self):
         while True:
-            while True:
-                student_name = input("名称： ").strip()
-                if student_name:
+            student_name = input("名称： ").strip()
+            if student_name:
+                break
+        self.student_name = student_name
+        while True:
+            passwd = input("密码： ").strip()
+            if passwd:
+                break
+        while True:
+            sex = input("性别(男\女)： ").strip()
+            if sex == "男" or sex == "女":
+                break
+            else:
+                print("你输入的不和规范")
+        while True:
+            age = input("年龄： ").strip()
+            if age.isdigit():
+                age = int(age)
+                if age < 15:
+                    print("年龄不能这么小吧...")
+                    continue
+                elif age > 30:
+                    print("一个学生，年龄不可能这么大吧...")
+                    continue
+                else:
                     break
-            self.student_name = student_name
+            else:
+                print("你输入的不符合规范")
+        while True:
+            self.school_obj.show_class()
+            class_name = input("以上是各个班级和同学，选择哪个班级？").strip()
+            if class_name in self.school_obj.school_class:
+                break
+            else:
+                print("你输入的班级不存在，请重新选择")
+        class_obj = self.school_obj.school_class[class_name]
+        self.school_obj.eroll_student(student_name, passwd, sex, age, class_obj)
+    def show_core(self):
+        pass
+
+class Teacher_manager(School_manager):
+    def operate(self):
+        while True:
+            print("\033[1;31;47m欢迎来到讲师视图"
+                  "选择今天上课的班级:\ttake_class\n"
+                  "查看班级的学生:\tshow_student\n"
+                  "给学生改分:\tchange_score\n"
+                  "保存，退出程序:\texit\033[0m\n")
+            choice = input(">>: ").strip()
+            if hasattr(self, choice):
+                getattr(self, choice)()
+            elif choice == "exit":
+                break
+            else:
+                print("无此方法，请重新输入")
+                continue
+        pass
+
+    def login(self):
+        while True:
+            while True:
+                teacher_name = input("名称： ").strip()
+                if teacher_name:
+                    break
+            self.teacher_name = teacher_name
             while True:
                 passwd = input("密码： ").strip()
                 if passwd:
                     break
-            while True:
-                sex = input("性别(男\女)： ").strip()
-                if sex == "男" or sex == "女":
-                    break
-                else:
-                    print("你输入的不和规范")
-            while True:
-                age = input("年龄： ").strip()
-                if age.isdigit():
-                    age = int(age)
-                    if age < 15:
-                        print("年龄不能这么小吧...")
-                        continue
-                    elif age > 30:
-                        print("一个学生，年龄不可能这么大吧...")
-                        continue
-                    else:
-                        break
-                else:
-                    print("你输入的不符合规范")
-            while True:
-                self.school_obj.show_class()
-                class_name = input("以上是各个班级和同学，选择哪个班级？").strip()
-                if class_name in self.school_obj.school_class:
-                    break
-                else:
-                    print("你输入的班级不存在，请重新选择")
-            class_obj = self.school_obj.school_class[class_name]
-            self.school_obj.eroll_student(student_name, passwd, sex, age, class_obj)
-
-    def show_core(self):
-        pass
+            if teacher_name in self.school_obj.school_teacher and passwd == self.school_obj.school_teacher[teacher_name]:
+                print("欢迎你，%s" %teacher_name)
+                break
+            else:
+                print("用户名或密码错误，请重新登陆")
+                continue
+    def change_score(self):
+        teacher_obj = self.school_obj.school_teacher[self.teacher_name]
+        while True:
+            for key in teacher_obj.class_dic:
+                print()
+            class_name = input("选择你教授的班级名： ").strip()
 
 
 
