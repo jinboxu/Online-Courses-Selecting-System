@@ -5,5 +5,5 @@ class Student(object):
         self.sex = sex
         self.age = age
         self.class_obj = class_obj
-        self.core = 0
+        self.score = 0
 
